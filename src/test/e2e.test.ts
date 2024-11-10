@@ -31,6 +31,7 @@ describe('End to end tests', () => {
     const taxPositionOne = responseOne.body;
 
     expect(taxPositionOne.taxPosition).toBe(-425);
+    expect(taxPositionOne.date).toBe(taxCheckDateOne.toISOString());
 
     const taxCheckTwo = createDate('05/01/2023');
     const responseTwo = await getTaxPosition(taxCheckTwo.toISOString());

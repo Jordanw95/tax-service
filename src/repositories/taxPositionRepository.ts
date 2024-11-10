@@ -15,7 +15,7 @@ export class TaxPositionRepository {
     const taxPosition = await prisma.taxPositionEntry.findFirst({
       where: {
         date: {
-          lte: date,
+          lte: dateObj.toISOString(),
         },
         ...(excludingIds.length > 0 && {
           NOT: {

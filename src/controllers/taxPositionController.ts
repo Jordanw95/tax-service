@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import { TaxPositionService } from '../services/taxPositionService';
 import { TaxPositionResponse } from '../types';
 import { serialize } from '../utils/serializer';
-import { TaxPositionNotFoundError } from '../types/errors';
 export class TaxPositionController {
   private taxPositionService: TaxPositionService;
 
@@ -20,11 +19,16 @@ export class TaxPositionController {
         await this.taxPositionService.getTaxPositionEntry(date);
 
       if (!taxPosition) {
-        throw new TaxPositionNotFoundError();
+        const dateObj = new Date(date);
+        res.json({
+          taxPosition: 0,
+          date: dateObj.toISOString(),
+        });
       }
 
       const serializedTaxPosition = serialize(TaxPositionResponse, taxPosition);
-      res.json(serializedTaxPosition);
+      // We want the date from the request, not the date from the tax position
+      res.json({ ...serializedTaxPosition, date });
     } catch (error) {
       next(error);
     }
