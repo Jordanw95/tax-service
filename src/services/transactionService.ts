@@ -141,7 +141,10 @@ export class TransactionService {
     if (!relatedSalesItem) {
       // A sales item with this itemId does not exist yet, but the sale does. Must create
       // the new item for the sale and update sales and tax position accordingly
-      this.handleCreateSalesItem(mostRecentSalesItemUpdate, relatedSalesEvent);
+      await this.handleCreateSalesItem(
+        mostRecentSalesItemUpdate,
+        relatedSalesEvent
+      );
       return;
     } else {
       // A sales item with this itemId exists, we should modify the existing item and update

@@ -95,7 +95,6 @@ export class TaxPositionService {
   ): Promise<TaxPositionEntry> => {
     const newTaxPositionAmount =
       await this.calculateNewTaxPositionAmount(event);
-    console.log(newTaxPositionAmount);
     const taxPositionEntry =
       await this.taxPositionRepository.updateTaxPositionEntry(event.eventId, {
         taxPosition: newTaxPositionAmount,

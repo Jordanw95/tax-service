@@ -6,6 +6,7 @@ import {
   createDate,
 } from './helpers';
 import { prisma } from '../utils/db';
+import { randomUUID } from 'crypto';
 
 describe('Sales API', () => {
   it('should create a sales event', async () => {
@@ -135,5 +136,107 @@ describe('Sales API', () => {
     const taxPositionAfterUpdate = responseAfterUpdated.body;
 
     expect(taxPositionAfterUpdate.taxPosition).toBe(200);
+  });
+
+  it('should be able to amend an existing sales event item with multiple items', async () => {
+    const date = createDate(`02/01/2023`);
+    const salesEventData = createTestSalesEvent(date);
+    salesEventData.items.push({
+      itemId: randomUUID(),
+      cost: 100,
+      taxRate: 0.2,
+    });
+    await createSalesEvent(salesEventData);
+
+    const taxCheckDate = createDate('06/01/2023');
+
+    const response = await getTaxPosition(taxCheckDate.toISOString());
+    const taxPosition = response.body;
+
+    expect(taxPosition.taxPosition).toBe(35);
+
+    const futureDate = createDate('08/01/2023');
+    const amendData = {
+      invoiceId: salesEventData.invoiceId,
+      date: futureDate.toISOString(),
+      itemId: salesEventData.items[0].itemId,
+      cost: 1000,
+      taxRate: 0.2,
+    };
+
+    await amendSalesEventItem(amendData);
+
+    const responseAfterUpdated = await getTaxPosition(futureDate.toISOString());
+    const taxPositionAfterUpdate = responseAfterUpdated.body;
+
+    expect(taxPositionAfterUpdate.taxPosition).toBe(220);
+  });
+
+  it('should be able to amend an existing sales event item with many sales events', async () => {
+    const date = createDate(`02/01/2023`);
+    const salesEventData = createTestSalesEvent(date);
+
+    await createSalesEvent(salesEventData);
+
+    const days = ['07', '01', '03', '10']; // Total tax position for these dates is 60
+    for (const day of days) {
+      const date = createDate(`${day}/01/2023`);
+      const salesEventData = createTestSalesEvent(date);
+
+      await createSalesEvent(salesEventData);
+    }
+
+    const taxCheckDate = createDate('20/01/2023');
+
+    const response = await getTaxPosition(taxCheckDate.toISOString());
+    const taxPosition = response.body;
+
+    expect(taxPosition.taxPosition).toBe(75);
+
+    const futureDate = createDate('20/01/2023');
+    const amendData = {
+      invoiceId: salesEventData.invoiceId,
+      date: futureDate.toISOString(),
+      itemId: salesEventData.items[0].itemId,
+      cost: 1000,
+      taxRate: 0.2,
+    };
+
+    await amendSalesEventItem(amendData);
+
+    const responseAfterUpdated = await getTaxPosition(futureDate.toISOString());
+    const taxPositionAfterUpdate = responseAfterUpdated.body;
+
+    expect(taxPositionAfterUpdate.taxPosition).toBe(260);
+  });
+
+  it('should be able to amend sales event with a new item', async () => {
+    const date = createDate(`02/01/2023`);
+    const salesEventData = createTestSalesEvent(date);
+
+    await createSalesEvent(salesEventData);
+
+    const taxCheckDate = createDate('06/01/2023');
+
+    const response = await getTaxPosition(taxCheckDate.toISOString());
+    const taxPosition = response.body;
+
+    expect(taxPosition.taxPosition).toBe(15);
+
+    const futureDate = createDate('08/01/2023');
+    const amendData = {
+      invoiceId: salesEventData.invoiceId,
+      date: futureDate.toISOString(),
+      itemId: randomUUID(),
+      cost: 1000,
+      taxRate: 0.2,
+    };
+
+    await amendSalesEventItem(amendData);
+
+    const responseAfterUpdated = await getTaxPosition(futureDate.toISOString());
+    const taxPositionAfterUpdate = responseAfterUpdated.body;
+
+    expect(taxPositionAfterUpdate.taxPosition).toBe(215);
   });
 });
