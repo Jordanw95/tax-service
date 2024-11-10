@@ -3,6 +3,7 @@ import { TransactionService } from '../services/transactionService';
 import {
   createSalesEventSchema,
   createTaxPaymentSchema,
+  modifySalesItemSchema,
 } from '../utils/validators';
 
 export class TransactionController {
@@ -54,6 +55,22 @@ export class TransactionController {
       const salesEvent =
         await this.transactionService.handleCreateSalesEvent(validatedDto);
       res.status(201).json(salesEvent);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  patchSalesEventItem = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const validatedDto = modifySalesItemSchema.parse(req.body);
+      await this.transactionService.handleModifySalesEventItem(validatedDto);
+      res
+        .status(200)
+        .json({ message: 'Sales event item modified successfully' });
     } catch (error) {
       next(error);
     }

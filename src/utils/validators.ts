@@ -22,3 +22,11 @@ export const createTaxPaymentSchema = z.object({
   date: z.string().datetime(),
   amount: z.number().int().positive(),
 });
+
+export const modifySalesItemSchema = z.object({
+  date: z.string().datetime(),
+  invoiceId: z.string().uuid(),
+  itemId: z.string().uuid(),
+  cost: z.number().int().positive(),
+  taxRate: z.number().min(0).max(1),
+});

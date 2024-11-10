@@ -8,5 +8,6 @@ const taxPositionController = new TaxPositionController();
 const transactionController = new TransactionController();
 router.get('/tax-position', taxPositionController.getTaxPosition);
 router.post('/transactions', transactionController.postTransaction);
+router.patch('/sales', transactionController.patchSalesEventItem);
 
 export default router;

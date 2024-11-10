@@ -16,3 +16,11 @@ export interface CreateTaxPaymentRequest {
   date: string;
   amount: number; // in pennies
 }
+
+export interface ModifySalesItemRequest {
+  date: string;
+  invoiceId: string;
+  itemId: string;
+  cost: number;
+  taxRate: number;
+}

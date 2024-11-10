@@ -14,8 +14,8 @@ model TaxPositionEntry {
   taxPositionDelta Int // The change in tax position due to event that created this entry
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
-  eventId          String
-  eventType        String
+  eventId          String   @unique // There should only be one TaxPositionEntry per event
+  eventType        String   // SALLES or TAX_PAYMENT
 
   @@index([date])
 }
@@ -37,7 +37,7 @@ model SalesEvent {
 
 model SalesItem {
   id           String     @id @default(uuid())
-  itemId       String
+  itemId       String     @unique
   cost         Int
   date         DateTime
   taxRate      Float
@@ -55,4 +55,13 @@ model TaxPaymentEvent {
   amount    Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model SalesItemUpdate {
+  id           String     @id @default(uuid())
+  date         DateTime
+  invoiceId    String
+  itemId       String
+  cost         Int
+  taxRate      Float
 }

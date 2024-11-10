@@ -21,8 +21,12 @@ export class TaxPositionService {
     event: GenericTaxEvent
   ): Promise<number> => {
     // We can calculate the new tax position by adding the tax position delta to the
-    // most recent previous tax position
-    const previousTaxPositionEntry = await this.getTaxPositionEntry(event.date);
+    // most recent previous tax position.
+    // We exclude the current event id to prevent counting the current event as part of the tax position
+    const previousTaxPositionEntry =
+      await this.taxPositionRepository.getRelevantTaxPosition(event.date, [
+        event.eventId,
+      ]);
     const previousTaxPosition = previousTaxPositionEntry?.taxPosition || 0;
     const newTaxPositionAmount = previousTaxPosition + event.taxPositionDelta;
     return newTaxPositionAmount;
@@ -79,6 +83,23 @@ export class TaxPositionService {
     event: GenericTaxEvent
   ): Promise<TaxPositionEntry> => {
     const taxPositionEntry = await this.handleCreateTaxPositionEntry(event);
+    await this.updateAllFutureTaxPositionEntries(
+      event,
+      taxPositionEntry.taxPosition
+    );
+    return taxPositionEntry;
+  };
+
+  updateTaxPositionEntryFromEvent = async (
+    event: GenericTaxEvent
+  ): Promise<TaxPositionEntry> => {
+    const newTaxPositionAmount =
+      await this.calculateNewTaxPositionAmount(event);
+    console.log(newTaxPositionAmount);
+    const taxPositionEntry =
+      await this.taxPositionRepository.updateTaxPositionEntry(event.eventId, {
+        taxPosition: newTaxPositionAmount,
+      });
     await this.updateAllFutureTaxPositionEntries(
       event,
       taxPositionEntry.taxPosition

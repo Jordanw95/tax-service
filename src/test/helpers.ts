@@ -5,6 +5,7 @@ import {
   CreateSalesEventRequest,
   CreateTaxPaymentRequest,
   TaxPositionResponse,
+  ModifySalesItemRequest,
 } from '../types';
 import { randomUUID } from 'crypto';
 
@@ -20,6 +21,10 @@ export const createTaxPaymentEvent = async (data: CreateTaxPaymentRequest) => {
 
 export const getTaxPosition = async (date: string) => {
   return testApp.get('/api/tax-position').query({ date }).expect(200);
+};
+
+export const amendSalesEventItem = async (data: ModifySalesItemRequest) => {
+  return testApp.patch('/api/sales').send(data).expect(200);
 };
 
 export const createDate = (dateString: string): Date => {

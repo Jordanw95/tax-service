@@ -2,6 +2,7 @@ import {
   createSalesEvent,
   createTestSalesEvent,
   getTaxPosition,
+  amendSalesEventItem,
   createDate,
 } from './helpers';
 import { prisma } from '../utils/db';
@@ -104,5 +105,35 @@ describe('Sales API', () => {
     const taxPosition = response.body;
 
     expect(taxPosition.taxPosition).toBe(30);
+  });
+
+  it('should be able to amend an existing sales event item', async () => {
+    const date = createDate(`02/01/2023`);
+    const salesEventData = createTestSalesEvent(date);
+
+    await createSalesEvent(salesEventData);
+
+    const taxCheckDate = createDate('06/01/2023');
+
+    const response = await getTaxPosition(taxCheckDate.toISOString());
+    const taxPosition = response.body;
+
+    expect(taxPosition.taxPosition).toBe(15);
+
+    const futureDate = createDate('08/01/2023');
+    const amendData = {
+      invoiceId: salesEventData.invoiceId,
+      date: futureDate.toISOString(),
+      itemId: salesEventData.items[0].itemId,
+      cost: 1000,
+      taxRate: 0.2,
+    };
+
+    await amendSalesEventItem(amendData);
+
+    const responseAfterUpdated = await getTaxPosition(futureDate.toISOString());
+    const taxPositionAfterUpdate = responseAfterUpdated.body;
+
+    expect(taxPositionAfterUpdate.taxPosition).toBe(200);
   });
 });

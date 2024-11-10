@@ -3,7 +3,8 @@ import { TaxPositionEntry, Prisma } from '@prisma/client';
 
 export class TaxPositionRepository {
   getRelevantTaxPosition = async (
-    date: string
+    date: string,
+    excludingIds: string[] = []
   ): Promise<TaxPositionEntry | null> => {
     // The relevant tax position is the most recent tax position entry
     // that has a date in the past of the date provided
@@ -16,6 +17,11 @@ export class TaxPositionRepository {
         date: {
           lte: date,
         },
+        ...(excludingIds.length > 0 && {
+          NOT: {
+            eventId: { in: excludingIds },
+          },
+        }),
       },
       orderBy: {
         date: 'desc',
@@ -67,6 +73,17 @@ export class TaxPositionRepository {
     data: Prisma.TaxPositionEntryCreateInput
   ): Promise<TaxPositionEntry> => {
     const taxPositionEntry = await prisma.taxPositionEntry.create({
+      data,
+    });
+    return taxPositionEntry;
+  };
+
+  updateTaxPositionEntry = async (
+    eventId: string,
+    data: Prisma.TaxPositionEntryUpdateInput
+  ): Promise<TaxPositionEntry> => {
+    const taxPositionEntry = await prisma.taxPositionEntry.update({
+      where: { eventId },
       data,
     });
     return taxPositionEntry;
