@@ -89,7 +89,6 @@ describe('Sales API', () => {
     expect(taxPosition.taxPosition).toBe(75);
   });
 
-  
   it('should calculate tax position based on mid month query', async () => {
     const days = ['07', '01', '03', '10'];
     for (const day of days) {

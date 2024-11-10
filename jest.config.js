@@ -2,6 +2,7 @@
 module.exports = {
     preset: 'ts-jest',
     testEnvironment: 'node',
+    setupFiles: ['reflect-metadata'],
     setupFilesAfterEnv: ['<rootDir>/src/test/setup.ts'],
     moduleFileExtensions: ['ts', 'js'],
     transform: {

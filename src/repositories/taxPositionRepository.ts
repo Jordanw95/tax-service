@@ -45,16 +45,14 @@ export class TaxPositionRepository {
   };
 
   updateManyTaxPositionsEntries = async (
-    updates: {id: number, taxPosition: number}[]
+    updates: { id: number; taxPosition: number }[]
   ): Promise<void> => {
     // This function will likely be used to update many future tax positions entries
     // so use raw SQL so postgresSQL can optimse entire operation as a single unit.
     // There may well be a way to do this with prisma but I couldn't find it
-    const values = updates
-      .map(u => `(${u.id}, ${u.taxPosition})`)
-      .join(',');
-  
-    await prisma.$transaction(async (tx) => {
+    const values = updates.map(u => `(${u.id}, ${u.taxPosition})`).join(',');
+
+    await prisma.$transaction(async tx => {
       await tx.$executeRaw`
         UPDATE "TaxPositionEntry" AS t
         SET "taxPosition" = c.new_tax_position

@@ -1,3 +1,5 @@
+// Required for class-transfomer
+import 'reflect-metadata';
 import { PrismaClient } from '@prisma/client';
 import '@jest/globals';
 import dotenv from 'dotenv';

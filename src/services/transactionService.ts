@@ -2,10 +2,15 @@ import { TaxPositionRepository } from '../repositories/taxPositionRepository';
 import { SalesEvent, type Prisma } from '@prisma/client';
 import { SalesRepository } from '../repositories/salesRepository';
 import { TaxPositionService } from './taxPositionService';
-import { CreateSalesEventDto } from '../types/dtos';
+import {
+  CreateSalesEventRequest,
+  SalesEventResponse,
+  CreateTaxPaymentRequest,
+} from '../types';
 import { GenericTaxEvent } from '../types/types';
+import { serialize } from '../utils/serializer';
 
-export class SalesService {
+export class TransactionService {
   private salesRepository: SalesRepository;
 
   constructor() {
@@ -13,8 +18,9 @@ export class SalesService {
   }
 
   mapToSalesEventCreate = (
-    dto: CreateSalesEventDto
+    dto: CreateSalesEventRequest
   ): Prisma.SalesEventCreateInput => {
+    // replace this with class-transformer?
     const totalCost = dto.items.reduce((sum, item) => sum + item.cost, 0);
     const totalTaxImpact = dto.items.reduce(
       (sum, item) => sum + Math.round(item.cost * item.taxRate),
@@ -39,7 +45,9 @@ export class SalesService {
     };
   };
 
-  async handleCreateSalesEvent(dto: CreateSalesEventDto): Promise<void> {
+  handleCreateSalesEvent = async (
+    dto: CreateSalesEventRequest
+  ): Promise<SalesEventResponse> => {
     const salesEventCreateInput = this.mapToSalesEventCreate(dto);
     const salesEvent = await this.salesRepository.createSalesEvent(
       salesEventCreateInput
@@ -53,5 +61,10 @@ export class SalesService {
     };
     const taxPositionService = new TaxPositionService();
     await taxPositionService.createTaxPositionEntryFromEvent(taxEvent);
-  }
+    return serialize(SalesEventResponse, salesEvent);
+  };
+
+  handleCreateTaxPayment = async (
+    dto: CreateTaxPaymentRequest
+  ): Promise<void> => {};
 }

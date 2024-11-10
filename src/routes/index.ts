@@ -1,11 +1,12 @@
 import { Router } from 'express';
 import { TaxPositionController } from '../controllers/taxPositionController';
-import { SalesController } from '../controllers/salesController';
+import { TransactionController } from '../controllers/transactionController';
+
 const router = Router();
 
 const taxPositionController = new TaxPositionController();
-const salesController = new SalesController();
-router.get('/position', taxPositionController.getTaxPosition);
-router.post('/sales', salesController.createSalesEvent);
+const transactionController = new TransactionController();
+router.get('/tax-position', taxPositionController.getTaxPosition);
+router.post('/transactions', transactionController.postTransaction);
 
 export default router;

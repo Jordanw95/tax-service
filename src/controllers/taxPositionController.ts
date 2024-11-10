@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { TaxPositionService } from '../services/taxPositionService';
-import { TaxPositionDto } from '../types/dtos';
+import { TaxPositionResponse } from '../types';
 import { serialize } from '../utils/serializer';
 import { TaxPositionNotFoundError } from '../types/errors';
 export class TaxPositionController {
@@ -23,7 +23,7 @@ export class TaxPositionController {
         throw new TaxPositionNotFoundError();
       }
 
-      const serializedTaxPosition = serialize(TaxPositionDto, taxPosition);
+      const serializedTaxPosition = serialize(TaxPositionResponse, taxPosition);
       res.json(serializedTaxPosition);
     } catch (error) {
       next(error);

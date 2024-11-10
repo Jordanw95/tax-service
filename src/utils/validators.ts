@@ -16,3 +16,9 @@ export const createSalesEventSchema = z.object({
 export type ValidatedCreateSalesEventDto = z.infer<
   typeof createSalesEventSchema
 >;
+
+export const createTaxPaymentSchema = z.object({
+  eventType: z.literal('TAX_PAYMENT'),
+  date: z.string().datetime(),
+  amount: z.number().int().positive(),
+});
