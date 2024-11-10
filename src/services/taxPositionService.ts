@@ -9,13 +9,13 @@ export class TaxPositionService {
     this.taxPositionRepository = new TaxPositionRepository();
   }
 
-  async getTaxPositionEntry(date: string): Promise<TaxPositionEntry | null> {
+  getTaxPositionEntry = async (date: string): Promise<TaxPositionEntry | null> => {
     const taxPosition =
       await this.taxPositionRepository.getRelevantTaxPosition(date);
     return taxPosition;
   }
 
-  async calculateNewTaxPositionAmount(event: GenericTaxEvent): Promise<number> {
+  calculateNewTaxPositionAmount = async (event: GenericTaxEvent): Promise<number> => {
     // We can calculate the new tax position by adding the tax position delta to the
     // most recent previous tax position
     const previousTaxPositionEntry = await this.getTaxPositionEntry(event.date);
@@ -24,9 +24,9 @@ export class TaxPositionService {
     return newTaxPositionAmount;
   }
 
-  async handleCreateTaxPositionEntry(
+  handleCreateTaxPositionEntry = async (
     event: GenericTaxEvent
-  ): Promise<TaxPositionEntry> {
+  ): Promise<TaxPositionEntry> => {
     const taxPositionAmount = await this.calculateNewTaxPositionAmount(event);
     const taxPositionEntryInput: Prisma.TaxPositionEntryCreateInput = {
       date: new Date(event.date),
@@ -42,11 +42,31 @@ export class TaxPositionService {
     return taxPositionEntry;
   }
 
-  async createTaxPositionEntryFromEvent(
+  updateAllFutureTaxPositionEntries = async (event: GenericTaxEvent, newTaxPosition: number): Promise<void> => {
+    // Due to the chain like nature of tax position, we need to update all future tax position
+    // entries when a new tax position entry is created
+    const futureTaxPositionEntries = await this.taxPositionRepository.getFutureTaxPositionEntries(event.date);
+    if (futureTaxPositionEntries.length === 0) {
+      return;
+    }
+    let runningTaxPosition = newTaxPosition;
+    const newTaxPositions = futureTaxPositionEntries.map<{id: number, taxPosition: number}>(entry => {
+        const newTaxPosition = runningTaxPosition + entry.taxPositionDelta;
+        runningTaxPosition = newTaxPosition;
+        return {
+            id: entry.id,
+            taxPosition: newTaxPosition
+        }
+    })
+    await this.taxPositionRepository.updateManyTaxPositionsEntries(newTaxPositions)
+  }
+
+  createTaxPositionEntryFromEvent = async (
     event: GenericTaxEvent
-  ): Promise<TaxPositionEntry> {
+  ): Promise<TaxPositionEntry> => {
     const taxPositionEntry = await this.handleCreateTaxPositionEntry(event);
     // Need to handle all future tax position entries now
+    await this.updateAllFutureTaxPositionEntries(event, taxPositionEntry.taxPosition);
     return taxPositionEntry;
   }
 }
