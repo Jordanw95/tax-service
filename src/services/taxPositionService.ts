@@ -65,7 +65,6 @@ export class TaxPositionService {
     event: GenericTaxEvent
   ): Promise<TaxPositionEntry> => {
     const taxPositionEntry = await this.handleCreateTaxPositionEntry(event);
-    // Need to handle all future tax position entries now
     await this.updateAllFutureTaxPositionEntries(event, taxPositionEntry.taxPosition);
     return taxPositionEntry;
   }

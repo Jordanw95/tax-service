@@ -57,7 +57,7 @@ describe('Sales API', () => {
     expect(taxPosition.taxPosition).toBe(75);
   });
 
-  it('should calculate tax position based on accumulated sales when sales are not input chronologically', async () => {
+  it('should calculate tax position based on accumulated sales when sales are input in reverse', async () => {
     const days = ['05', '04', '03', '02', '01'];
     for (const day of days) {
       const date = createDate(`${day}/01/2023`);
@@ -71,5 +71,39 @@ describe('Sales API', () => {
     const taxPosition = response.body;
 
     expect(taxPosition.taxPosition).toBe(75);
+  });
+
+  it('should calculate tax position based on accumulated sales when sales are not input chronologically', async () => {
+    const days = ['03', '05', '01', '04', '02'];
+    for (const day of days) {
+      const date = createDate(`${day}/01/2023`);
+      const salesEventData = createTestSalesEvent(date);
+
+      await createSalesEvent(salesEventData);
+    }
+
+    const taxCheckDate = createDate('06/01/2023');
+    const response = await getTaxPosition(taxCheckDate.toISOString());
+    const taxPosition = response.body;
+
+    expect(taxPosition.taxPosition).toBe(75);
+  });
+
+  
+  it('should calculate tax position based on mid month query', async () => {
+    const days = ['07', '01', '03', '10'];
+    for (const day of days) {
+      const date = createDate(`${day}/01/2023`);
+      const salesEventData = createTestSalesEvent(date);
+
+      await createSalesEvent(salesEventData);
+    }
+
+    const taxCheckDate = createDate('06/01/2023');
+
+    const response = await getTaxPosition(taxCheckDate.toISOString());
+    const taxPosition = response.body;
+
+    expect(taxPosition.taxPosition).toBe(30);
   });
 });
