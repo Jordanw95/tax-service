@@ -8,7 +8,7 @@ import {
 import { prisma } from '../utils/db';
 import { randomUUID } from 'crypto';
 
-describe('Sales API', () => {
+describe.only('Sales API', () => {
   it('should create a sales event', async () => {
     const dateOne = createDate('01/01/2023');
     const salesEventDataOne = createTestSalesEvent(dateOne);
@@ -238,5 +238,51 @@ describe('Sales API', () => {
     const taxPositionAfterUpdate = responseAfterUpdated.body;
 
     expect(taxPositionAfterUpdate.taxPosition).toBe(215);
+  });
+
+  it('should be able add an ammendment for an invoice id before sales event exists', async () => {
+    const date = createDate(`02/01/2023`);
+    const salesEventData = createTestSalesEvent(date);
+    const futureDate = createDate('08/01/2023');
+    const amendData = {
+      invoiceId: salesEventData.invoiceId,
+      date: futureDate.toISOString(),
+      itemId: salesEventData.items[0].itemId,
+      cost: 1000,
+      taxRate: 0.2,
+    };
+    await amendSalesEventItem(amendData);
+
+    await createSalesEvent(salesEventData);
+
+    const taxCheckDate = createDate('06/01/2023');
+
+    const response = await getTaxPosition(taxCheckDate.toISOString());
+    const taxPosition = response.body;
+
+    expect(taxPosition.taxPosition).toBe(200);
+  });
+
+  it('should respect the date of sales event if it is dated before the amendment', async () => {
+    const date = createDate(`02/01/2023`);
+    const salesEventData = createTestSalesEvent(date);
+    const futureDate = createDate('01/01/2023');
+    const amendData = {
+      invoiceId: salesEventData.invoiceId,
+      date: futureDate.toISOString(),
+      itemId: salesEventData.items[0].itemId,
+      cost: 1000,
+      taxRate: 0.2,
+    };
+    await amendSalesEventItem(amendData);
+
+    await createSalesEvent(salesEventData);
+
+    const taxCheckDate = createDate('06/01/2023');
+
+    const response = await getTaxPosition(taxCheckDate.toISOString());
+    const taxPosition = response.body;
+
+    expect(taxPosition.taxPosition).toBe(15);
   });
 });

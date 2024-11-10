@@ -24,41 +24,64 @@ export class TransactionService {
     this.transactionRepository = new TransactionRepository();
   }
 
+  handleCreateSalesItems = async (
+    data: CreateSalesEventRequest,
+    salesEvent: SalesEvent
+  ) => {
+    // First create a salesItemUpdate for each item
+    for (const item of data.items) {
+      await this.transactionRepository.createSalesItemUpdate({
+        date: data.date,
+        invoiceId: data.invoiceId,
+        itemId: item.itemId,
+        cost: item.cost,
+        taxRate: item.taxRate,
+      });
+    }
+    const upToDateSalesUpdates =
+      await this.transactionRepository.getMostRecentSalesUpdatesForSalesEvent(
+        data.invoiceId
+      );
+    const salesItemCreateManyInput: Prisma.SalesItemCreateManyInput[] =
+      upToDateSalesUpdates.map(update => ({
+        itemId: update.itemId,
+        cost: update.cost,
+        taxRate: update.taxRate,
+        date: update.date,
+        taxImpact: Math.round(update.cost * update.taxRate),
+        salesEventId: salesEvent.id,
+      }));
+    return await this.transactionRepository.createSalesItems(
+      salesItemCreateManyInput
+    );
+  };
+
   mapToSalesEventCreate = (
     data: CreateSalesEventRequest
   ): Prisma.SalesEventCreateInput => {
-    const totalCost = data.items.reduce((sum, item) => sum + item.cost, 0);
-    const totalTaxImpact = data.items.reduce(
-      (sum, item) => sum + Math.round(item.cost * item.taxRate),
-      0
-    );
-
     return {
       eventType: data.eventType,
       date: new Date(data.date),
       invoiceId: data.invoiceId,
-      totalCost,
-      totalTaxImpact,
-      salesItems: {
-        create: data.items.map(item => ({
-          itemId: item.itemId,
-          cost: item.cost,
-          taxRate: item.taxRate,
-          taxImpact: Math.round(item.cost * item.taxRate),
-          date: new Date(data.date),
-        })),
-      },
+      totalCost: 0,
+      totalTaxImpact: 0,
     };
   };
 
   handleCreateSalesEvent = async (
     data: CreateSalesEventRequest
   ): Promise<SalesEventResponse> => {
+    // Create the initial sdales event without items
     const salesEventCreateInput = this.mapToSalesEventCreate(data);
-    const salesEvent = await this.transactionRepository.createSalesEvent(
+    const initialSalesEvent = await this.transactionRepository.createSalesEvent(
       salesEventCreateInput
     );
-    // TODO check for sales ammendments here and modify accordingly
+    // Create the sales items for the sales event, checking for SalesEventItems and using the
+    // most recent item update to create the item
+    await this.handleCreateSalesItems(data, initialSalesEvent);
+    // Update the sales event with the total cost and total tax impact
+    const salesEvent = await this.handleUpdateSalesEvent(initialSalesEvent.id);
+    // Create a tax position entry for the sales event
     const taxEvent: GenericTaxEvent = {
       date: salesEvent.date.toISOString(),
       taxPositionDelta: salesEvent.totalTaxImpact,
@@ -149,7 +172,7 @@ export class TransactionService {
     } else {
       // A sales item with this itemId exists, we should modify the existing item and update
       // sales and tax position accordingly
-      this.transactionRepository.updateSalesItem(relatedSalesItem, {
+      await this.transactionRepository.updateSalesItem(relatedSalesItem, {
         date: mostRecentSalesItemUpdate.date,
         cost: mostRecentSalesItemUpdate.cost,
         taxRate: mostRecentSalesItemUpdate.taxRate,

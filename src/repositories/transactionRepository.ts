@@ -39,6 +39,21 @@ export class TransactionRepository {
     return salesItemUpdate;
   };
 
+  getMostRecentSalesUpdatesForSalesEvent = async (
+    invoiceId: string
+  ): Promise<SalesItemUpdate[]> => {
+    // This will rank each update for an itemId by its date field and return only the most recent one
+    return await prisma.$queryRaw`
+      WITH RankedUpdates AS (
+        SELECT *,
+          ROW_NUMBER() OVER (PARTITION BY "itemId" ORDER BY date DESC) as rn
+        FROM "SalesItemUpdate"
+        WHERE "invoiceId" = ${invoiceId}
+      )
+      SELECT * FROM RankedUpdates WHERE rn = 1
+    `;
+  };
+
   getMostRecentSalesItemUpdate = async (
     itemId: string
   ): Promise<SalesItemUpdate | null> => {
@@ -72,6 +87,13 @@ export class TransactionRepository {
       data,
     });
     return updatedSalesItem;
+  };
+
+  createSalesItems = async (
+    data: Prisma.SalesItemCreateManyInput[]
+  ): Promise<void> => {
+    await prisma.salesItem.createMany({ data });
+    return;
   };
 
   createSalesItem = async (
