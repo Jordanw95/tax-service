@@ -11,5 +11,6 @@ module.exports = {
     testMatch: ['**/*.test.ts'],
     moduleNameMapper: {
       '^@/(.*)$': '<rootDir>/src/$1'
-    }
+    },
+    maxWorkers: 1,
   };

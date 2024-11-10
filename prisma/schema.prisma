@@ -48,3 +48,11 @@ model SalesItem {
   @@index([itemId])
   @@index([salesEventId])
 }
+
+model TaxPaymentEvent {
+  id        String @id @default(uuid())
+  date      DateTime
+  amount    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

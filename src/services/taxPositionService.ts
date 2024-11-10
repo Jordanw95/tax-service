@@ -31,6 +31,7 @@ export class TaxPositionService {
   handleCreateTaxPositionEntry = async (
     event: GenericTaxEvent
   ): Promise<TaxPositionEntry> => {
+    // Use the latest recent tax position with the provided tax event to calculate a new tax position
     const taxPositionAmount = await this.calculateNewTaxPositionAmount(event);
     const taxPositionEntryInput: Prisma.TaxPositionEntryCreateInput = {
       date: new Date(event.date),

@@ -1,12 +1,20 @@
 import request, { SuperTest, Test } from 'supertest';
 import app from '../app';
 import { prisma } from '../utils/db';
-import { CreateSalesEventRequest, TaxPositionResponse } from '../types';
+import {
+  CreateSalesEventRequest,
+  CreateTaxPaymentRequest,
+  TaxPositionResponse,
+} from '../types';
 import { randomUUID } from 'crypto';
 
 export const testApp = request(app);
 
 export const createSalesEvent = async (data: CreateSalesEventRequest) => {
+  return testApp.post('/api/transactions').send(data).expect(201);
+};
+
+export const createTaxPaymentEvent = async (data: CreateTaxPaymentRequest) => {
   return testApp.post('/api/transactions').send(data).expect(201);
 };
 
@@ -24,6 +32,14 @@ export const createDate = (dateString: string): Date => {
   const [day, month, year] = parts;
   return new Date(`${year}-${month}-${day}T00:00:00Z`);
 };
+
+export const createTestTaxPaymentEvent = (
+  date: Date
+): CreateTaxPaymentRequest => ({
+  eventType: 'TAX_PAYMENT',
+  date: date.toISOString(),
+  amount: 100,
+});
 
 export const createTestSalesEvent = (date: Date): CreateSalesEventRequest => ({
   eventType: 'SALES',

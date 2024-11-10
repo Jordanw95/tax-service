@@ -26,6 +26,7 @@ beforeAll(async () => {
 beforeEach(async () => {
   await prisma.salesItem.deleteMany();
   await prisma.salesEvent.deleteMany();
+  await prisma.taxPaymentEvent.deleteMany();
   await prisma.taxPositionEntry.deleteMany();
 });
 
