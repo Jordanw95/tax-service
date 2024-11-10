@@ -3,9 +3,9 @@ import { NotFoundError } from '../types/errors';
 
 export const errorHandler: ErrorRequestHandler = (
   err: Error,
-  req: Request,
+  _: Request,
   res: Response,
-  next: NextFunction
+  __: NextFunction
 ): void => {
   if (err instanceof NotFoundError) {
     res.status(404).json({

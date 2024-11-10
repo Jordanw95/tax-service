@@ -1,10 +1,8 @@
-import request, { SuperTest, Test } from 'supertest';
+import request from 'supertest';
 import app from '../app';
-import { prisma } from '../utils/db';
 import {
   CreateSalesEventRequest,
   CreateTaxPaymentRequest,
-  TaxPositionResponse,
   ModifySalesItemRequest,
 } from '../types';
 import { randomUUID } from 'crypto';

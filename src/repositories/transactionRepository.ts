@@ -6,7 +6,6 @@ import {
   SalesItem,
   type Prisma,
 } from '@prisma/client';
-import { ModifySalesItemRequest } from '../types';
 
 export class TransactionRepository {
   createSalesEvent = async (

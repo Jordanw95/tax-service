@@ -6,7 +6,6 @@ import {
   createTestTaxPaymentEvent,
   createTaxPaymentEvent,
 } from './helpers';
-import { prisma } from '../utils/db';
 
 describe('End to end tests', () => {
   it('should calculate the tax position correctly', async () => {

@@ -24,7 +24,9 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,md,json}\"",
     "ts": "tsc --noEmit",
     "test": "dotenv -e test.env -- jest",
-    "test:watch": "dotenv -e test.env -- jest --watch"
+    "test:watch": "dotenv -e test.env -- jest --watch",
+    "lint": "eslint .",
+    "lint:fix": "eslint ."
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",

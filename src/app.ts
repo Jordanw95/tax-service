@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import routes from './routes';
 // Required for class-transfomer
 import 'reflect-metadata';

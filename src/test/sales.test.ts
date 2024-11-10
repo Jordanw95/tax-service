@@ -31,7 +31,7 @@ describe.only('Sales API', () => {
 
     await createSalesEvent(salesEventDataOne);
 
-    const salesEvent = await prisma.salesEvent.findFirst({
+    await prisma.salesEvent.findFirst({
       where: { invoiceId: salesEventDataOne.invoiceId },
       include: { salesItems: true },
     });

@@ -1,11 +1,4 @@
-import { TaxPositionRepository } from '../repositories/taxPositionRepository';
-import {
-  SalesEvent,
-  TaxPaymentEvent,
-  SalesItem,
-  SalesItemUpdate,
-  type Prisma,
-} from '@prisma/client';
+import { SalesEvent, SalesItemUpdate, type Prisma } from '@prisma/client';
 import { TransactionRepository } from '../repositories/transactionRepository';
 import { TaxPositionService } from './taxPositionService';
 import {
