@@ -1,0 +1,16 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model TaxPositionEntry {
+  id          Int      @id @default(autoincrement())
+  date        DateTime
+  taxPosition Number
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

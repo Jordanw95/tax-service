@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  novabook-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: novabook-api
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+    env_file:
+      - local.env
+    depends_on:
+      - db
+    command: sh -c "npx prisma migrate deploy && npm run dev"
+
+  db:
+    image: postgres:15-alpine
+    container_name: novabook-postgres
+    env_file:
+      - local.env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
