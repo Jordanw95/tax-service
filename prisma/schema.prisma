@@ -10,7 +10,36 @@ generator client {
 model TaxPositionEntry {
   id          Int      @id @default(autoincrement())
   date        DateTime
-  taxPosition Number
+  taxPosition Int
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([date])
+}
+
+model SalesEvent {
+  id             String      @id @default(uuid())
+  eventType      String      @default("SALES")
+  date           DateTime
+  invoiceId      String      @unique
+  totalTaxImpact Int
+  totalCost      Int
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  salesItems     SalesItem[]
+
+  @@index([invoiceId])
+  @@index([date])
+}
+
+model SalesItem {
+  id           String     @id @default(uuid())
+  itemId       String
+  cost         Int
+  taxRate      Float
+  salesEvent   SalesEvent @relation(fields: [salesEventId], references: [id])
+  salesEventId String
+
+  @@index([itemId])
+  @@index([salesEventId])
 }
