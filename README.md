@@ -92,5 +92,4 @@ created before the actual SalesEvent.
 To maintain consistency and prevent rounding discrepancies in tax calculations,
 any calculated values (e.g., tax amounts) are immediately rounded to the nearest
 penny before storage. This approach eliminates floating-point arithmetic issues
-and ensures that line items will always sum perfectly to their totals, providing
-a reliable audit trail.
+and should ensure that line items will always sum perfectly to their total.
