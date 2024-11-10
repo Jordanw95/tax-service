@@ -8,11 +8,12 @@ generator client {
 }
 
 model TaxPositionEntry {
-  id          Int      @id @default(autoincrement())
-  date        DateTime
-  taxPosition Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id               Int      @id @default(autoincrement())
+  date             DateTime
+  taxPosition      Int
+  taxPositionDelta String // The change in tax position due to event that created this entry
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   @@index([date])
 }
@@ -36,7 +37,9 @@ model SalesItem {
   id           String     @id @default(uuid())
   itemId       String
   cost         Int
+  date         DateTime
   taxRate      Float
+  taxImpact    Int
   salesEvent   SalesEvent @relation(fields: [salesEventId], references: [id])
   salesEventId String
 
