@@ -16,6 +16,21 @@ with the the following curl command:
 curl http://localhost:3000/api/test
 ```
 
+# Running tests
+
+On first run, you will need to create and migrate the test database:
+
+```
+./create_test_db.sh
+./migrate_test_db.sh
+```
+
+After doing this, you can run the tests with the following command:
+
+```
+docker-compose exec novabook-api npm test
+```
+
 # Ambiguity notes
 
 ## Penny Discrepancies

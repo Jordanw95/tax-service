@@ -1,0 +1,1 @@
+docker exec -it novabook-postgres psql -U postgres -c "CREATE DATABASE novabook_test;"

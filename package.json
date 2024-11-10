@@ -6,8 +6,11 @@
     "class-transformer": "^0.5.1",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
+    "jest": "^29.7.0",
     "pg": "^8.13.1",
     "reflect-metadata": "^0.2.2",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.6.3",
@@ -19,12 +22,17 @@
     "dev": "ts-node-dev --respawn --transpile-only --poll src/server.ts",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,md,json}\"",
-    "ts": "tsc --noEmit"
+    "ts": "tsc --noEmit",
+    "test": "dotenv -e test.env -- jest",
+    "test:watch": "dotenv -e test.env -- jest --watch"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.14",
     "@types/pg": "^8.11.10",
+    "@types/supertest": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^8.13.0",
     "@typescript-eslint/parser": "^8.13.0",
+    "dotenv-cli": "^7.4.2",
     "eslint": "^9.14.0",
     "prettier": "^3.3.3",
     "prisma": "^5.22.0"

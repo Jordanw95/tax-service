@@ -1,7 +1,10 @@
 import { TaxPositionRepository } from '../repositories/taxPositionRepository';
-import { type Prisma } from '@prisma/client';
+import { SalesEvent, type Prisma } from '@prisma/client';
 import { SalesRepository } from '../repositories/salesRepository';
+import { TaxPositionService } from './taxPositionService';
 import { CreateSalesEventDto } from '../types/dtos';
+import { GenericTaxEvent } from '../types/types';
+
 export class SalesService {
   private salesRepository: SalesRepository;
 
@@ -41,5 +44,14 @@ export class SalesService {
     const salesEvent = await this.salesRepository.createSalesEvent(
       salesEventCreateInput
     );
+    // TODO check for sales ammendments here and modify accordingly
+    const taxEvent: GenericTaxEvent = {
+      date: salesEvent.date.toISOString(),
+      taxPositionDelta: salesEvent.totalTaxImpact,
+      eventId: salesEvent.id,
+      eventType: salesEvent.eventType,
+    };
+    const taxPositionService = new TaxPositionService();
+    await taxPositionService.createTaxPositionEntryFromEvent(taxEvent);
   }
 }

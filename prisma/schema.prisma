@@ -11,9 +11,11 @@ model TaxPositionEntry {
   id               Int      @id @default(autoincrement())
   date             DateTime
   taxPosition      Int
-  taxPositionDelta String // The change in tax position due to event that created this entry
+  taxPositionDelta Int // The change in tax position due to event that created this entry
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+  eventId          String
+  eventType        String
 
   @@index([date])
 }

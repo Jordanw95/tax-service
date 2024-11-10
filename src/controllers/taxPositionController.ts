@@ -12,7 +12,12 @@ export class TaxPositionController {
 
   getTaxPosition = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const taxPosition = await this.taxPositionService.getTaxPosition();
+      const date = req.query.date as string;
+      if (!date || typeof date !== 'string') {
+        throw new Error('Date parameter is required');
+      }
+      const taxPosition =
+        await this.taxPositionService.getTaxPositionEntry(date);
 
       if (!taxPosition) {
         throw new TaxPositionNotFoundError();
